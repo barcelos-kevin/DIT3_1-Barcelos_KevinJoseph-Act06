@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Primary Colors -->
+    <color name="primary_color">#1976D2</color>
+    <color name="primary_dark">#0D47A1</color>
+    <color name="primary_light">#42A5F5</color>
+
+    <!-- Secondary Colors -->
+    <color name="secondary_color">#FF6F00</color>
+    <color name="secondary_dark">#E65100</color>
+    <color name="secondary_light">#FFB74D</color>
+
+    <!-- Tertiary Colors -->
+    <color name="tertiary_color">#4CAF50</color>
+
+    <!-- Neutral Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#212121</color>
+    <color name="gray">#757575</color>
+    <color name="light_gray">#EEEEEE</color>
+
+    <!-- Gradient Colors -->
+    <color name="gradient_start">#1565C0</color>
+    <color name="gradient_end">#0D47A1</color>
 </resources>
+

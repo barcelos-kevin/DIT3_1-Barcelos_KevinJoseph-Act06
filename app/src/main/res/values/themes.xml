@@ -1,8 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.APIConnectApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorSecondary">@color/secondary_color</item>
+        <item name="colorTertiary">@color/tertiary_color</item>
+        <!-- Background and surface -->
+        <item name="android:windowBackground">@drawable/gradient_background</item>
     </style>
 
     <style name="Theme.APIConnectApp" parent="Base.Theme.APIConnectApp" />

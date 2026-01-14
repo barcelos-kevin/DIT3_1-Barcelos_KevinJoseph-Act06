@@ -25,6 +25,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvCity: TextView
     private lateinit var tvTemp: TextView
     private lateinit var tvDesc: TextView
+    private lateinit var weatherCard: View
+    private lateinit var emptyStateLayout: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +44,8 @@ class MainActivity : AppCompatActivity() {
         tvCity = findViewById(R.id.tvCity)
         tvTemp = findViewById(R.id.tvTemp)
         tvDesc = findViewById(R.id.tvDesc)
+        weatherCard = findViewById(R.id.weatherCard)
+        emptyStateLayout = findViewById(R.id.emptyStateLayout)
 
         btnSearch.setOnClickListener {
             val city = etCity.text.toString().trim()
@@ -61,9 +65,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchWeather(city: String) {
         progressBar.visibility = View.VISIBLE
-        tvCity.text = ""
-        tvTemp.text = ""
-        tvDesc.text = ""
+        weatherCard.visibility = View.GONE
+        emptyStateLayout.visibility = View.GONE
 
         val api = RetrofitClient.create()
         val apiKey = getString(R.string.openweather_api_key)
@@ -72,20 +75,31 @@ class MainActivity : AppCompatActivity() {
             try {
                 val resp = api.getCurrentWeather(city, apiKey)
                 tvCity.text = resp.name ?: city
-                tvTemp.text = resp.main?.temp?.let { String.format("%.1f°C", it) } ?: "-"
-                tvDesc.text = resp.weather?.firstOrNull()?.description ?: "-"
+                tvTemp.text = resp.main?.temp?.let { String.format("%.1f°", it) } ?: "-"
+                tvDesc.text = resp.weather?.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: "-"
+
+                progressBar.visibility = View.GONE
+                weatherCard.visibility = View.VISIBLE
+                emptyStateLayout.visibility = View.GONE
             } catch (e: IOException) {
+                progressBar.visibility = View.GONE
+                weatherCard.visibility = View.GONE
+                emptyStateLayout.visibility = View.VISIBLE
                 Toast.makeText(this@MainActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
             } catch (e: HttpException) {
+                progressBar.visibility = View.GONE
+                weatherCard.visibility = View.GONE
+                emptyStateLayout.visibility = View.VISIBLE
                 if (e.code() == 404) {
                     Toast.makeText(this@MainActivity, "City not found", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this@MainActivity, "Server error: ${e.code()}", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@MainActivity, "Unexpected error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-            } finally {
                 progressBar.visibility = View.GONE
+                weatherCard.visibility = View.GONE
+                emptyStateLayout.visibility = View.VISIBLE
+                Toast.makeText(this@MainActivity, "Unexpected error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
             }
         }
     }
