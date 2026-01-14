@@ -1,12 +1,31 @@
 package com.example.apiconnectapp
 
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.apiconnectapp.util.NetworkUtils
+import com.example.apiconnectapp.weather.RetrofitClient
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var etCity: EditText
+    private lateinit var btnSearch: Button
+    private lateinit var progressBar: ProgressBar
+    private lateinit var tvCity: TextView
+    private lateinit var tvTemp: TextView
+    private lateinit var tvDesc: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -15,6 +34,59 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        etCity = findViewById(R.id.etCity)
+        btnSearch = findViewById(R.id.btnSearch)
+        progressBar = findViewById(R.id.progressBar)
+        tvCity = findViewById(R.id.tvCity)
+        tvTemp = findViewById(R.id.tvTemp)
+        tvDesc = findViewById(R.id.tvDesc)
+
+        btnSearch.setOnClickListener {
+            val city = etCity.text.toString().trim()
+            if (city.isEmpty()) {
+                Toast.makeText(this, "Enter a city", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (!NetworkUtils.isOnline(this)) {
+                Toast.makeText(this, "No internet connection", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            fetchWeather(city)
+        }
+    }
+
+    private fun fetchWeather(city: String) {
+        progressBar.visibility = View.VISIBLE
+        tvCity.text = ""
+        tvTemp.text = ""
+        tvDesc.text = ""
+
+        val api = RetrofitClient.create()
+        val apiKey = getString(R.string.openweather_api_key)
+
+        lifecycleScope.launch {
+            try {
+                val resp = api.getCurrentWeather(city, apiKey)
+                tvCity.text = resp.name ?: city
+                tvTemp.text = resp.main?.temp?.let { String.format("%.1f°C", it) } ?: "-"
+                tvDesc.text = resp.weather?.firstOrNull()?.description ?: "-"
+            } catch (e: IOException) {
+                Toast.makeText(this@MainActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+            } catch (e: HttpException) {
+                if (e.code() == 404) {
+                    Toast.makeText(this@MainActivity, "City not found", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Server error: ${e.code()}", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "Unexpected error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            } finally {
+                progressBar.visibility = View.GONE
+            }
         }
     }
 }

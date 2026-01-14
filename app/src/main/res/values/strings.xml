@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">APIConnectApp</string>
+    <string name="openweather_api_key">377c7b167f8aa4039b382bcd575f166c</string>
 </resources>
